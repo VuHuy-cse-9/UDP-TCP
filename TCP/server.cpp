@@ -15,12 +15,14 @@ int main() {
         cerr <<"Can't creat socket a socket";
         return -1;
     }
-// Bind the ip address and port to a socket    
-    sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(54000);
+
+    // Bind the ip address and port to a socket    
+    sockaddr_in hint; // serverSocket
+    hint.sin_family = AF_INET;//IPV4
+    hint.sin_port = htons(54000); //serverPort
     inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
 
+    //We start listening from the beginning
     if (bind(listening, (sockaddr*)&hint, sizeof(hint)) == -1) {
         cerr << "Can't bind the hind to IP/Port";
         return -2;
@@ -30,7 +32,8 @@ int main() {
         return -3;
     }
 
-    sockaddr_in client;
+    // Wait for a connection
+    sockaddr_in client; //connectionSocket
     socklen_t clientSize = sizeof(client);
     char host[NI_MAXHOST];
     char svc[NI_MAXSERV];
@@ -41,10 +44,11 @@ int main() {
         return -4;
     }
 
+    // Close listening socket
     close(listening);
 
-    memset(host, 0, NI_MAXHOST);
-    memset(svc, 0,  NI_MAXSERV);
+    memset(host, 0, NI_MAXHOST);//sentenceFromHost
+    memset(svc, 0,  NI_MAXSERV);//sentenceFromServer
 
     int result = getnameinfo((sockaddr*)& client, 
                             sizeof(client), 
@@ -61,27 +65,32 @@ int main() {
         inet_ntop(AF_INET, &client.sin_addr, host,  NI_MAXHOST);
         cout << host << " connected on " << ntohs(client.sin_port) << endl;
     }
-
+    // While loop: accept and echo message back to client
     char buf[4096];
-    //Enter a loop
+
     while (true) {
         memset(buf, 0, 4096);
+
+        // Wait for client to send data
         int bytesRecv = recv(clientSocket, buf, 4096, 0);
         if (bytesRecv == -1) {
             cerr << "There were connnection issue";
             break;
         }
+
         if (bytesRecv == 0) {
             cerr << "The client disconnected" << endl;
             break;
         }
-        //Wait message
-        //Display message and client info
-        cout << "Received: " << string(buf, 0, bytesRecv) << endl;
 
-        send(clientSocket, buf, bytesRecv + 1, 0);
+        cout << "Received: " << string(buf, 0, bytesRecv) << endl;
+        //Display message and client info
+       
+        send(clientSocket, buf, bytesRecv + 1, 0);//socket send
     }
 
     //close socket
     close(clientSocket);
+
+    return 0;
 }
