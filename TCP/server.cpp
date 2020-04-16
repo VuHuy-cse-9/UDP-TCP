@@ -6,6 +6,7 @@
 #include<arpa/inet.h>
 #include<string.h>
 #include<string>
+
 using namespace std; //Save from typing std;
 
 int main() {
@@ -22,6 +23,7 @@ int main() {
     // Bind the ip address and port to a socket    
     //sockaddr_in: Socket address include IP address, hostname and port
     //inet_pton: Convert IP address form text to binary (For transmit in internet)
+    //htons: convert value between host and network in order.
     sockaddr_in hint; // serverSocket
     hint.sin_family = AF_INET;//IPV4
     hint.sin_port = htons(54000); //serverPort
@@ -80,6 +82,7 @@ int main() {
         memset(buf, 0, 4096);
 
         // Wait for client to send data
+        //recv return sizeof data
         int bytesRecv = recv(clientSocket, buf, 4096, 0);
         if (bytesRecv == -1) {
             cerr << "There were connnection issue";
@@ -93,6 +96,7 @@ int main() {
 
         cout << "Received: " << string(buf, 0, bytesRecv) << endl;
         //Display message and client info
+        //byteRecv + 1:print mesage have size = byteRecv (recv() only return char) so +1 for include 0
         send(clientSocket, buf, bytesRecv + 1, 0);//socket send
     }
 
