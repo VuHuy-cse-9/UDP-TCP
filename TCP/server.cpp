@@ -10,6 +10,9 @@ using namespace std; //Save from typing std;
 
 int main() {
     // Create a socket
+    //AF_INET = IPv4: Internet protocol
+    //SOCK_STREAM: TCP
+    //0: Protocol apply for socket (when using with type family protocol)
     int listening = socket(AF_INET, SOCK_STREAM, 0);
     if (listening == -1) {
         cerr <<"Can't creat socket a socket";
@@ -17,6 +20,8 @@ int main() {
     }
 
     // Bind the ip address and port to a socket    
+    //sockaddr_in: Socket address include IP address, hostname and port
+    //inet_pton: Convert IP address form text to binary (For transmit in internet)
     sockaddr_in hint; // serverSocket
     hint.sin_family = AF_INET;//IPV4
     hint.sin_port = htons(54000); //serverPort
@@ -38,6 +43,8 @@ int main() {
     char host[NI_MAXHOST];
     char svc[NI_MAXSERV];
 
+    //accept: When connection, open a new socket.Have to specify ADDR_LEN(clientsSize)
+    //and accept return a socket description or -1 if failed
     int clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
     if (clientSocket == -1) {
         cerr << "Problem with client connecting";
@@ -46,7 +53,8 @@ int main() {
 
     // Close listening socket
     close(listening);
-
+    //memset: Fill first n byte of memmory area that is pointed by void* ptr(host, svc)
+    //and replace them with const c (NI_MAXHOST,   NI_MAXSERV)
     memset(host, 0, NI_MAXHOST);//sentenceFromHost
     memset(svc, 0,  NI_MAXSERV);//sentenceFromServer
 
@@ -85,7 +93,6 @@ int main() {
 
         cout << "Received: " << string(buf, 0, bytesRecv) << endl;
         //Display message and client info
-       
         send(clientSocket, buf, bytesRecv + 1, 0);//socket send
     }
 
